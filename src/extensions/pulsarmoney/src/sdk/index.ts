@@ -81,3 +81,30 @@ export const createVesting = async (
 
   return vestingQuery
 }
+
+export const createVault = async (
+  token: string,
+  amount: number,
+  releaseTimestampInMiliseconds: number,
+  name: string,
+  address: string
+) => {
+  const vaultRelease: PaymentReleaseInput = {
+    startDate: createDateFromTimestampMiliseconds(releaseTimestampInMiliseconds - 1000),
+    endDate: createDateFromTimestampMiliseconds(releaseTimestampInMiliseconds),
+    amount: amount,
+    duration: DEFAULT_FREQUENCY_SECONDS,
+  }
+
+  const { data: lockQuery } = await getPulsarPaymentTransaction(
+    address,
+    [address],
+    false,
+    token,
+    name,
+    PaymentTypeAttributes.Vault,
+    [vaultRelease]
+  )
+
+  return lockQuery
+}
